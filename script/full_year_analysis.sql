@@ -1,0 +1,38 @@
+USE cyclistic;
+
+-- ANALYZE BASED ON QUARTERS IN 2022 
+ANALYZE TABLE quarter_1;
+ANALYZE TABLE quarter_2;
+ANALYZE TABLE quarter_3;
+ANALYZE TABLE quarter_4;
+
+SELECT 
+	TABLE_NAME AS quarter_name, 
+	TABLE_ROWS AS total_trips
+FROM INFORMATION_SCHEMA.TABLES
+WHERE 
+	TABLE_SCHEMA = 'cyclistic'
+	AND
+	TABLE_NAME = 'quarter_1'
+	OR 
+	TABLE_NAME = 'quarter_2'
+	OR
+	TABLE_NAME = 'quarter_3'
+	OR
+	TABLE_NAME = 'quarter_4';
+	
+/*
+ * SO MOST OF TRIPS FOCUS ON QUARTER 2 AND QUARTER 3*/
+
+-- GET FULL YEAR QUERY FOR VIS
+SELECT *
+FROM quarter_1;
+
+SELECT *
+FROM quarter_2;
+
+SELECT *
+FROM quarter_3;
+
+SELECT *
+FROM quarter_4;
