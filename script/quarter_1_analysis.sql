@@ -9,6 +9,8 @@
  * 		 we can't remove them because of data consistency. So in this analyze phrase, I will find around their relationship 
  * 		 and another trend in this dataset*/ 
 
+/*
+ * QUARTER 1*/
 USE cyclistic;
 
 -- First we will get 5 first rows to review this dataset for brainstorm idea to analyze
@@ -116,7 +118,7 @@ ORDER BY member_casual;
 
 /*
  * Based on the result in above, I will state that almose casual use bycycle between 6 and 25 minutes, 
- * and almost member use bycycle between 4 and 15 minutes in quarter 3*/
+ * and almost member use bycycle between 4 and 15 minutes in quarter 1*/
 
 -- Stats the ride_length by rideable_type
 SELECT 
@@ -132,7 +134,7 @@ FROM quarter_1
 GROUP BY member_casual, rideable_type 
 ORDER BY member_casual;
 
--- Stats casual which ride_length > 25 minutes and < 6 minutes by rideable_type
+-- Stats casual which ride_length > 25 minutes and < 6 minutes | 6 <= ride_length <= 25 minutesby rideable_type
 SELECT 
 	'quarter_1' AS quarter_name,
 	member_casual,
@@ -167,9 +169,9 @@ SELECT
 	COUNT(*) AS total
 FROM quarter_1
 WHERE 
-	TIME_TO_SEC(ride_length) > 6 * 60
+	TIME_TO_SEC(ride_length) >= 6 * 60
 	AND
-	TIME_TO_SEC(ride_length) < 25 * 60 
+	TIME_TO_SEC(ride_length) <= 25 * 60 
 	AND
 	member_casual = 'casual'
 GROUP BY rideable_type 
@@ -210,9 +212,9 @@ SELECT
 	COUNT(*) AS total
 FROM quarter_1
 WHERE 
-	TIME_TO_SEC(ride_length) > 4 * 60
+	TIME_TO_SEC(ride_length) >= 4 * 60
 	AND
-	TIME_TO_SEC(ride_length) < 15 * 60 
+	TIME_TO_SEC(ride_length) <= 15 * 60 
 	AND
 	member_casual = 'member'
 GROUP BY rideable_type 
@@ -390,16 +392,18 @@ ORDER BY member_casual;
 SELECT member_casual, COUNT(*) AS total_start_geo_missing 
 FROM quarter_1
 WHERE 
-	start_lat = 0 AND start_lng = 0
+	(start_lat = 0 OR start_lng = 0)
+	OR 
+	(start_lat = NULL OR start_lng = NULL)
 GROUP BY member_casual;
 
 -- STATS END GEO DATA MISSING BY TYPE OF USER 
 SELECT member_casual, COUNT(*) AS total_start_geo_missing 
 FROM quarter_1
 WHERE 
-	(end_lat = 0 AND end_lng = 0)
+	(end_lat = 0 OR end_lng = 0)
 	OR
-	(end_lat = NULL)
+	(end_lat = NULL OR end_lng = NULL)
 GROUP BY member_casual;
 
 -- TOP 10 geo start (not start from start_station)
@@ -419,7 +423,7 @@ FROM (
 	GROUP BY start_lat, start_lng
 	) AS temp
 ORDER BY geo_counted
-LIMIT 10
+LIMIT 10;
 
 -- Similar for geo end
 SELECT 
@@ -438,7 +442,7 @@ FROM (
 	GROUP BY end_lat, end_lng
 	) AS temp
 ORDER BY geo_counted
-LIMIT 10
+LIMIT 10;
 
 -- based on day_of_week
 -- Stats the number of trip in each type of user via day_of_week
@@ -452,7 +456,7 @@ GROUP BY
 	day_of_week, 
 	member_casual,
 	rideable_type 
-ORDER BY day_of_week, member_casual, rideable_type ;
+ORDER BY day_of_week, member_casual, rideable_type;
 
 SELECT 
 	day_of_week,
@@ -492,6 +496,16 @@ GROUP BY
 	rideable_type,
 	member_casual
 ORDER BY total_trip DESC, member_casual;
+
+-- Caculate the ride length average by each ridable type
+SELECT 
+	rideable_type,
+	SEC_TO_TIME(
+		AVG(TIME_TO_SEC(ride_length))
+	) AS avg_ride_length
+FROM quarter_1
+GROUP BY rideable_type
+ORDER BY rideable_type;
 
 -- SIMILAR FOR THE REST QUARTERS
 
